@@ -1,0 +1,2103 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PentaFlow 五维推演 - AI 影响力分析系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .config-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .config-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .agents-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0 40px;
+        }
+        
+        .agent-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 120px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .agent-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        .agent-icon {
+            font-size: 2em;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .agent-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input, textarea {
+            color: #666;
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .console {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            min-height: 400px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .agent-status {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f1f5f9;
+            border-radius: 6px;
+        }
+        
+        .agent-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .agent-name {
+            flex: 1;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .agent-icon {
+            margin: 0 5px;
+            font-size: 1.2em;
+        }
+        
+        .agent-status-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-left: 25px;
+        }
+        
+        .agent-details {
+            font-size: 0.85em;
+            color: #666;
+            margin-left: 25px;
+            margin-top: 3px;
+            font-style: italic;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+            flex-shrink: 0;
+        }
+        
+        .status-active {
+            background: #10b981;
+        }
+        
+        .status-pending {
+            background: #f59e0b;
+        }
+        
+        .status-completed {
+            background: #3b82f6;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .bystander-summary {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #8b5cf6;
+        }
+        
+        .round-controls {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .round-report {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .opinion-item {
+                margin: 10px 0;
+                padding: 10px;
+                background: #f8fafc;
+                border-radius: 6px;
+                border-left: 3px solid #667eea;
+            }
+            
+            .expand-btn {
+                margin-top: 8px;
+                padding: 5px 12px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.85em;
+                transition: background 0.2s;
+            }
+            
+            .expand-btn:hover {
+                background: #5b67d4;
+            }
+            
+            .opinions-container {
+                margin: 15px 0;
+            }
+            
+            .bystander-summary-section {
+                margin: 20px 0;
+                padding: 15px;
+                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+                border-radius: 8px;
+                border: 2px solid #667eea;
+            }
+            
+            .bystander-summary-content {
+                margin-top: 10px;
+                font-size: 1em;
+                line-height: 1.8;
+                color: #1e293b;
+                font-weight: 600;
+                white-space: pre-wrap;
+            }
+            
+            .score-section {
+                background: #f8fafc;
+                padding: 10px;
+                border-radius: 6px;
+                margin-top: 10px;
+                text-align: center;
+            }
+            
+            .control-buttons {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+                margin-top: 15px;
+            }
+        
+        /* 模态框样式 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.98);
+    padding: 35px;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.modal-content h2 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.help-text {
+    margin-top: 8px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #667eea;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.help-text a {
+    text-decoration: none;
+}
+
+.help-text a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .agents-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .round-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .round-left, .round-right {
+                width: 100%;
+            }
+            
+            .agent-info {
+                flex-direction: row;
+            }
+            
+            .agent-status-text {
+                font-size: 0.9em;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+            }
+            
+            .control-buttons button {
+                margin: 5px 0;
+                width: 100%;
+            }
+            
+            #radarChart_1 {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .agent-card {
+                min-width: 100%;
+            }
+            
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 时间线样式优化 */
+        .timeline-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .timeline-item {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+        
+        .timeline-item h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        
+        .timeline-agents {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .timeline-agent {
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        
+        .timeline-agent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-agent strong {
+            color: #667eea;
+            font-size: 1em;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-agent div {
+            color: #333;
+            line-height: 1.7;
+            font-size: 0.95em;
+        }
+        
+        .timeline-bystander {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .timeline-bystander strong {
+            color: #8b5cf6;
+            font-size: 1em;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .timeline-bystander div {
+            color: #1e293b;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+        
+        .timeline-bystander ul {
+            margin: 10px 0 0 20px;
+            color: #1e293b;
+        }
+        
+        .timeline-bystander li {
+            margin: 6px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 全屏加载遮罩 -->
+    <div id="fullscreenLoader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 10000; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="width: 80px; height: 80px; border: 8px solid #f3f3f3; border-top: 8px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 30px;"></div>
+        <h2 id="loaderTitle" style="color: #333; margin-bottom: 15px;">处理中</h2>
+        <p id="loaderMessage" style="color: #666; font-size: 1.1em;">请稍候...</p>
+    </div>
+
+    <!-- API Key 配置界面 -->
+    <div id="apiKeyModal" class="modal" style="display: block;">
+        <div class="modal-content">
+            <h2>🔑 API Key 配置</h2>
+            <p>欢迎使用 PentaFlow 五维推演系统！请先配置 API Key 以使用完整功能。</p>
+            
+            <div class="form-group">
+                <label for="llmApiKey" style="color: #ef4444;">* 大模型 API Key (必填)</label>
+                <input type="password" id="llmApiKey" placeholder="请输入阿里百炼 API Key">
+                <div class="help-text">
+                    <a href="https://www.aliyun.com/benefit/ai/aistar?clubBiz=subTask..12424174..10263.." target="_blank" style="color: #667eea;">📝 点击注册阿里百炼获取 API Key</a>
+                    <br>
+                    <small>使用模型：qwen3.5-plus（阿里云DashScope）</small>
+                    <br>
+                    <small>配置方法：填入套餐专属 API Key，使用兼容 OpenAI 接口协议工具</small>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="llmBaseUrl" style="color: #ef4444;">* 接口地址 (必填)</label>
+                <input type="text" id="llmBaseUrl" value="https://coding.dashscope.aliyuncs.com/v1" placeholder="请输入兼容 OpenAI 接口协议工具地址">
+                <div class="help-text">
+                    <small>默认使用阿里云 DashScope 接口地址，支持任何兼容 OpenAI 接口协议的服务</small>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="searchApiKey" style="color: #ef4444;">* 搜索 API Key (必填)</label>
+                <input type="password" id="searchApiKey" placeholder="请输入 Tavily API Key">
+                <div class="help-text">
+                    <a href="https://www.tavily.com/" target="_blank" style="color: #667eea;">📝 点击注册 Tavily 获取 API Key</a>
+                    <br>
+                    <small>使用 Tavily 搜索 API，效果更好且稳定</small>
+                </div>
+            </div>
+            
+            <button onclick="saveApiKeys()" style="width: 100%;">✅ 保存配置并开始使用</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎯 PentaFlow 五维推演</h1>
+            <p>AI 影响力分析系统</p>
+            <button onclick="reconfigureApiKeys()" class="config-btn" title="重新配置API Key">
+                🔑 重新配置
+            </button>
+        </div>
+        
+        <!-- 智能体展示区域 -->
+        <div class="agents-container">
+            <div class="agent-card" title="资本代言人 - 关注商业价值、投资回报">
+                <span class="agent-icon">🏦</span>
+                <span class="agent-name">资本代言人</span>
+            </div>
+            <div class="agent-card" title="技术执行者 - 关注技术可行性、工程实现">
+                <span class="agent-icon">🔧</span>
+                <span class="agent-name">技术执行者</span>
+            </div>
+            <div class="agent-card" title="创意指挥官 - 关注品牌认知、传播力">
+                <span class="agent-icon">🎨</span>
+                <span class="agent-name">创意指挥官</span>
+            </div>
+            <div class="agent-card" title="社会观察员 - 关注社会影响、伦理问题">
+                <span class="agent-icon">👁️</span>
+                <span class="agent-name">社会观察员</span>
+            </div>
+            <div class="agent-card" title="政策监管者 - 关注合规性、安全可控">
+                <span class="agent-icon">⚖️</span>
+                <span class="agent-name">政策监管者</span>
+            </div>
+            <div class="agent-card" title="用户代表 - 关注易用性、实用价值">
+                <span class="agent-icon">👤</span>
+                <span class="agent-name">用户代表</span>
+            </div>
+            <div class="agent-card" title="旁观者 - 关注分析总结、识别冲突/共识">
+                <span class="agent-icon">🤔</span>
+                <span class="agent-name">旁观者</span>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>📋 事件输入</h2>
+                <div class="form-group">
+                    <label for="eventName">事件名称</label>
+                    <input type="text" id="eventName" placeholder="例如：Seedance 2.0 发布、GPT-5 官宣...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventDescription">事件描述</label>
+                    <textarea id="eventDescription" rows="4" placeholder="输入事件详细描述..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventCategory">事件类别</label>
+                    <select id="eventCategory">
+                        <option value="技术突破">技术突破</option>
+                        <option value="产品发布">产品发布</option>
+                        <option value="政策法规">政策法规</option>
+                        <option value="行业应用">行业应用</option>
+                        <option value="投资并购">投资并购</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                
+                <button onclick="enrichEvent()" id="enrichBtn">🔍 智能补全信息</button>
+                <button onclick="startAnalysis()" id="analyzeBtn" class="btn-secondary" style="margin-left: 10px;" disabled>🚀 开始分析</button>
+            </div>
+            
+            <div class="card">
+                <h2>💻 控制台输出</h2>
+                <div id="console" class="console"></div>
+            </div>
+        </div>
+        
+        <!-- 推演轮次容器 -->
+        <div id="roundsContainer">
+            <!-- 每轮推演的内容将动态插入 -->
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api/v1';
+        let currentTaskId = null;
+        let roundNumber = 0;
+        let ws = null;
+        let allRoundsData = []; // 存储所有轮次数据
+        let eventName = ''; // 存储事件名称
+        
+        // API Key 管理
+        let llmApiKey = '';
+        let llmBaseUrl = 'https://coding.dashscope.aliyuncs.com/v1';
+        let searchApiKey = '';
+        
+        
+        // 保存 API Keys
+        function saveApiKeys() {
+            console.log('=== saveApiKeys 被调用 ===');
+            
+            const llmApiKeyInput = document.getElementById('llmApiKey');
+            const llmBaseUrlInput = document.getElementById('llmBaseUrl');
+            const searchApiKeyInput = document.getElementById('searchApiKey');
+            
+            console.log('获取输入元素:', { llmApiKeyInput, llmBaseUrlInput, searchApiKeyInput });
+            
+            llmApiKey = llmApiKeyInput.value.trim();
+            llmBaseUrl = llmBaseUrlInput.value.trim();
+            searchApiKey = searchApiKeyInput.value.trim();
+            
+            console.log('读取到的值:', { llmApiKey: llmApiKey.substring(0, 10) + '...', llmBaseUrl, searchApiKey: searchApiKey.substring(0, 10) + '...' });
+            
+            if (!llmApiKey) {
+                alert('请输入大模型 API Key（必填项）');
+                return;
+            }
+            
+            if (!llmBaseUrl) {
+                alert('请输入接口地址（必填项）');
+                return;
+            }
+            
+            if (!searchApiKey) {
+                alert('请输入搜索 API Key（必填项）');
+                return;
+            }
+            
+            // 保存到 localStorage
+            try {
+                localStorage.setItem('llm_api_key', llmApiKey);
+                localStorage.setItem('llm_base_url', llmBaseUrl);
+                localStorage.setItem('search_api_key', searchApiKey);
+                console.log('已保存到 localStorage');
+            } catch (e) {
+                console.error('保存到 localStorage 失败:', e);
+            }
+            
+            // 隐藏配置界面
+            const modal = document.getElementById('apiKeyModal');
+            console.log('模态框元素:', modal);
+            if (modal) {
+                modal.style.display = 'none';
+                console.log('模态框已隐藏');
+            } else {
+                console.error('找不到模态框元素');
+            }
+            
+            log('API Key 配置已保存');
+            
+            // 重新连接 WebSocket（如果需要）
+            if (currentTaskId) {
+                connectWebSocket(currentTaskId);
+            }
+        }
+        
+        // 加载 API Keys
+        function loadApiKeys() {
+            console.log('=== loadApiKeys 被调用 ===');
+            
+            llmApiKey = localStorage.getItem('llm_api_key') || '';
+            llmBaseUrl = localStorage.getItem('llm_base_url') || 'https://coding.dashscope.aliyuncs.com/v1';
+            searchApiKey = localStorage.getItem('search_api_key') || '';
+            
+            console.log('从localStorage读取:', {
+                llmApiKey: llmApiKey ? llmApiKey.substring(0, 10) + '...' : '(空)',
+                llmBaseUrl,
+                searchApiKey: searchApiKey ? searchApiKey.substring(0, 10) + '...' : '(空)'
+            });
+            
+            if (llmApiKey && llmBaseUrl && searchApiKey) {
+                document.getElementById('llmApiKey').value = llmApiKey;
+                document.getElementById('llmBaseUrl').value = llmBaseUrl;
+                document.getElementById('searchApiKey').value = searchApiKey;
+                document.getElementById('apiKeyModal').style.display = 'none';
+                log('已加载已保存的 API Key');
+                console.log('API Key 已加载，模态框已隐藏');
+            } else {
+                console.log('API Key 不完整，显示配置界面');
+                document.getElementById('apiKeyModal').style.display = 'block';
+            }
+        }
+        
+        // 重新配置 API Keys
+        function reconfigureApiKeys() {
+            document.getElementById('apiKeyModal').style.display = 'flex';
+        }
+        
+        // 添加控制台日志
+        function log(message) {
+            const consoleDiv = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            consoleDiv.textContent += `[${timestamp}] ${message}\n`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        // 加载测试数据
+        async function loadTestData() {
+            log('开始加载测试数据...');
+            
+            try {
+                // 从JSON文件加载测试数据
+                const response = await fetch('/static/test_data.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const testData = await response.json();
+                
+                // 清空之前的轮次数据
+                allRoundsData = [];
+                roundNumber = 0;
+                eventName = 'openclaw在中国大陆的爆火';
+                
+                // 清空控制台
+                document.getElementById('console').textContent = '';
+                
+                // 清空轮次显示区域
+                document.getElementById('roundsContainer').innerHTML = '';
+                
+                log('加载5轮openclaw测试数据');
+                
+                // 将测试数据添加到allRoundsData
+                allRoundsData = testData.map(r => ({
+                    round: r.round,
+                    metrics: r.metrics,
+                    agent_opinions: r.agent_opinions,
+                    bystander_summary: r.bystander_summary
+                }));
+                
+                log(`已加载${allRoundsData.length}轮数据`);
+                
+                // 为每轮创建显示
+                for (const roundData of allRoundsData) {
+                    roundNumber = roundData.round;
+                    createRoundDisplay(roundNumber);
+                    updateMetricsDisplay(roundNumber, roundData.metrics);
+                    showBystanderSummary(roundNumber, roundData.bystander_summary);
+                    
+                    // 更新智能体活动
+                    roundData.agent_opinions.forEach(opinion => {
+                        updateAgentActivity(roundNumber, opinion.agent_name, '✅ 已完成', opinion.reasoning.substring(0, 50) + '...');
+                    });
+                    
+                    showRoundControls(roundNumber);
+                }
+                
+                log('测试数据加载完成，点击"中止推演"按钮生成时间线总结');
+                alert('测试数据加载完成！现在可以点击"中止推演"按钮来生成时间线总结。');
+            } catch (error) {
+                console.error('加载测试数据失败:', error);
+                log('加载测试数据失败: ' + error.message);
+                alert('加载测试数据失败: ' + error.message);
+            }
+        }
+        
+        // 创建新的轮次显示
+        function createRoundDisplay(roundNum) {
+            // 检查是否已存在该轮次的容器
+            const existingContainer = document.getElementById(`round_${roundNum}_container`);
+            if (existingContainer) {
+                console.log(`轮次 ${roundNum} 的容器已存在，不重复创建`);
+                return existingContainer;
+            }
+            
+            console.log(`创建轮次 ${roundNum} 的显示容器`);
+            
+            const roundsContainer = document.getElementById('roundsContainer');
+            if (!roundsContainer) {
+                console.error('roundsContainer 不存在');
+                return null;
+            }
+            
+            const roundDiv = document.createElement('div');
+            roundDiv.id = `round_${roundNum}_container`;
+            roundDiv.className = 'card';
+            roundDiv.style.marginTop = '20px'; // 确保轮次之间有间距
+            roundDiv.innerHTML = `
+                <h2>🔄 第 ${roundNum} 轮推演</h2>
+                
+                <div class="grid" style="margin-bottom: 20px;">
+                    <!-- 左边：智能体活动 -->
+                    <div>
+                        <h3>🤖 智能体活动</h3>
+                        <div id="agentsActivity_${roundNum}">
+                            <!-- 智能体活动将显示在这里 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 右边：五维分析雷达图 -->
+                    <div>
+                        <h3>📊 五维分析</h3>
+                        <div id="metrics_${roundNum}" style="margin-top: 20px; display: none;">
+                            <canvas id="radarChart_${roundNum}" width="400" height="400"></canvas>
+                        </div>
+                        <div id="metricsLoading_${roundNum}" style="margin-top: 40px; display: none; text-align: center;">
+                            <div style="width: 60px; height: 60px; border: 5px solid #f3f3f3; border-top: 5px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                            <p style="margin-top: 15px; color: #666;">分析中，请稍候...</p>
+                        </div>
+                        <div id="metricsText_${roundNum}" style="margin-top: 10px; display: none;">
+                            <!-- 数值显示 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 旁观者总结 -->
+                <div id="bystanderSummary_${roundNum}" style="margin-top: 20px; display: none;">
+                    <h3>🤔 旁观者总结</h3>
+                    <div id="bystanderContent_${roundNum}" class="bystander-summary"></div>
+                </div>
+                
+                <!-- 本轮报告 -->
+                <div id="roundReport_${roundNum}" style="margin-top: 20px; display: none;">
+                    <h3>📋 本轮报告</h3>
+                    <div id="roundReportContent_${roundNum}" class="round-report"></div>
+                </div>
+                
+                <!-- 控制按钮 -->
+                <div id="roundControls_${roundNum}" style="margin-top: 20px; display: none;">
+                    <div class="round-controls">
+                        <button onclick="continueToNextRound(${roundNum})" class="btn-secondary">🔄 继续推演</button>
+                        <button id="terminateBtn_${roundNum}" onclick="terminateSimulation(${roundNum})" style="background: linear-gradient(135deg, #ef4444, #dc2626);">${roundNum >= 2 ? '⏹️ 中止推演并生成时间线' : '⏹️ 中止推演'}</button>
+                    </div>
+                </div>
+            `;
+            
+            roundsContainer.appendChild(roundDiv);
+            console.log(`轮次 ${roundNum} 容器已添加到DOM`);
+            
+            return roundDiv;
+        }
+        
+        // 更新智能体活动显示
+        // 智能体显示顺序（旁观者最后）
+        const agentOrder = ['资本代言人', '技术执行者', '创意指挥官', '社会观察员', '政策监管者', '用户代表', '旁观者'];
+        const agentOrderMap = {};
+        agentOrder.forEach((name, index) => {
+            agentOrderMap[name] = index;
+        });
+
+        function updateAgentActivity(roundNum, agentName, status, details = '') {
+            const activityContainer = document.getElementById(`agentsActivity_${roundNum}`);
+            const activityId = `activity_${roundNum}_${agentName}`;
+            let activityDiv = document.getElementById(activityId);
+            
+            if (!activityDiv) {
+                activityDiv = document.createElement('div');
+                activityDiv.id = activityId;
+                activityDiv.className = 'agent-status';
+                activityDiv.dataset.order = agentOrderMap[agentName] || 999;
+                activityDiv.innerHTML = `
+                    <div class="agent-info">
+                        <span class="status-indicator status-pending"></span>
+                        <span class="agent-icon">${getAgentIcon(agentName)}</span>
+                        <span class="agent-name">${agentName}</span>
+                    </div>
+                    <div class="agent-status-text" id="statusText_${roundNum}_${agentName}">${status}</div>
+                `;
+                
+                // 按顺序插入
+                const allActivities = Array.from(activityContainer.children);
+                let inserted = false;
+                for (let i = 0; i < allActivities.length; i++) {
+                    const existingOrder = parseInt(allActivities[i].dataset.order) || 999;
+                    if (agentOrderMap[agentName] < existingOrder) {
+                        activityContainer.insertBefore(activityDiv, allActivities[i]);
+                        inserted = true;
+                        break;
+                    }
+                }
+                if (!inserted) {
+                    activityContainer.appendChild(activityDiv);
+                }
+            } else {
+                document.getElementById(`statusText_${roundNum}_${agentName}`).textContent = status;
+                // 更新状态指示器
+                const indicator = activityDiv.querySelector('.status-indicator');
+                indicator.className = 'status-indicator ' + getStatusClass(status);
+            }
+            
+            if (details) {
+                const detailsDiv = document.getElementById(`details_${roundNum}_${agentName}`);
+                if (detailsDiv) {
+                    detailsDiv.textContent = details;
+                } else {
+                    const detailsElement = document.createElement('div');
+                    detailsElement.id = `details_${roundNum}_${agentName}`;
+                    detailsElement.className = 'agent-details';
+                    detailsElement.textContent = details;
+                    activityDiv.appendChild(detailsElement);
+                }
+            }
+        }
+        
+        // 获取智能体图标
+        function getAgentIcon(agentName) {
+            const icons = {
+                '资本代言人': '🏦',
+                '技术执行者': '🔧',
+                '创意指挥官': '🎨',
+                '社会观察员': '👁️',
+                '政策监管者': '⚖️',
+                '用户代表': '👤',
+                '旁观者': '🤔'
+            };
+            return icons[agentName] || '🤖';
+        }
+        
+        // 更新五维分析图显示
+        function updateMetricsDisplay(roundNum, metrics = {}) {
+            const metricNames = [
+                { key: 'technology_penetration', name: '技术渗透率' },
+                { key: 'economic_disruption', name: '经济颠覆度' },
+                { key: 'employment_volatility', name: '就业波动率' },
+                { key: 'process_reconstruction', name: '流程重构度' },
+                { key: 'ethical_risk', name: '伦理风险值' }
+            ];
+            
+            // 检查是否有数据
+            const hasData = Object.keys(metrics).length > 0 && Object.values(metrics).some(v => v > 0);
+            
+            if (!hasData) {
+                // 显示加载动画
+                document.getElementById(`metrics_${roundNum}`).style.display = 'block';
+                document.getElementById(`metricsLoading_${roundNum}`).style.display = 'block';
+                document.getElementById(`radarChart_${roundNum}`).style.display = 'none';
+                return;
+            }
+            
+            // 隐藏加载动画，显示雷达图
+            document.getElementById(`metricsLoading_${roundNum}`).style.display = 'none';
+            document.getElementById(`radarChart_${roundNum}`).style.display = 'block';
+            
+            // 绘制雷达图
+            drawRadarChart(roundNum, metrics, metricNames);
+            
+            // 显示数值
+            const textContainer = document.getElementById(`metricsText_${roundNum}`);
+            textContainer.innerHTML = '';
+            // 显示五维图区域
+            document.getElementById(`metrics_${roundNum}`).style.display = 'block';
+            document.getElementById(`metricsText_${roundNum}`).style.display = 'none';
+        }
+        
+        // 绘制雷达图
+        function drawRadarChart(roundNum, metrics, metricNames) {
+            const canvas = document.getElementById(`radarChart_${roundNum}`);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 70;
+            const sides = metricNames.length;
+            const angleStep = (Math.PI * 2) / sides;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制背景网格
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+            
+            for (let level = 1; level <= 5; level++) {
+                const levelRadius = (radius / 5) * level;
+                ctx.beginPath();
+                for (let i = 0; i <= sides; i++) {
+                    const angle = i * angleStep - Math.PI / 2;
+                    const x = centerX + Math.cos(angle) * levelRadius;
+                    const y = centerY + Math.sin(angle) * levelRadius;
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            
+            // 绘制轴线
+            for (let i = 0; i < sides; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.stroke();
+                
+                // 绘制标签
+                const labelX = centerX + Math.cos(angle) * (radius + 50);
+                const labelY = centerY + Math.sin(angle) * (radius + 50);
+                ctx.fillStyle = '#334155';
+                ctx.font = 'bold 11px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(metricNames[i].name, labelX, labelY);
+            }
+            
+            // 绘制数据多边形
+            ctx.beginPath();
+            const dataPoints = [];
+            for (let i = 0; i <= sides; i++) {
+                const angle = (i % sides) * angleStep - Math.PI / 2;
+                const value = metrics[metricNames[i % sides].key] || 0;
+                const pointRadius = (value * radius);
+                const x = centerX + Math.cos(angle) * pointRadius;
+                const y = centerY + Math.sin(angle) * pointRadius;
+                dataPoints.push({x, y, value: metrics[metricNames[i % sides].key]});
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
+            ctx.fill();
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 绘制数据点和数值
+            for (let i = 0; i < dataPoints.length; i++) {
+                const point = dataPoints[i];
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#667eea';
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 在数据点旁边显示数值
+                const angle = i * angleStep - Math.PI / 2;
+                const textX = point.x + Math.cos(angle) * 20;
+                const textY = point.y + Math.sin(angle) * 20;
+                ctx.fillStyle = '#667eea';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(point.value.toFixed(3), textX, textY);
+            }
+        }
+        
+        // 显示旁观者总结
+        function showBystanderSummary(roundNum, summary) {
+            const summaryContainer = document.getElementById(`bystanderContent_${roundNum}`);
+            
+            // 处理markdown格式，保留段落结构，限制在500字以内
+            let processedSummary = summary
+                .replace(/#{1,6}\s/g, '') // 移除标题符号
+                .replace(/\*\*/g, '') // 移除加粗符号
+                .replace(/\*/g, '') // 移除斜体符号
+                .replace(/`/g, '') // 移除代码符号
+                .replace(/_/g, '') // 移除下划线
+                .replace(/\n\n+/g, '</p><p style="margin: 10px 0;">') // 将连续换行转换为段落
+                .replace(/\n/g, '<br>') // 将单个换行转换为换行符
+                .replace(/\s+/g, ' ') // 将多个空格替换为单个空格
+                .trim();
+            
+            // 限制在500字以内
+            if (processedSummary.length > 500) {
+                processedSummary = processedSummary.substring(0, 500);
+                // 确保在句子结束处截断
+                const lastPeriod = Math.max(
+                    processedSummary.lastIndexOf('。'),
+                    processedSummary.lastIndexOf('！'),
+                    processedSummary.lastIndexOf('？')
+                );
+                if (lastPeriod > 450) {
+                    processedSummary = processedSummary.substring(0, lastPeriod + 1);
+                } else {
+                    processedSummary += '...';
+                }
+            }
+            
+            // 用段落包装
+            const summaryHTML = `<p style="margin: 10px 0;">${processedSummary}</p>`;
+            
+            summaryContainer.innerHTML = `
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: #667eea; font-size: 1.1em;">🤔 旁观者总结:</strong>
+                </div>
+                <div style="font-size: 1em; line-height: 1.8; color: #333; padding: 15px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 8px; border-left: 4px solid #667eea;">
+                    ${summaryHTML}
+                </div>
+            `;
+            
+            document.getElementById(`bystanderSummary_${roundNum}`).style.display = 'block';
+        }
+        
+        // 生成并显示精简版汇总
+        async function generateAndShowSummary(roundNum, progressData) {
+            try {
+                // 显示"正在生成精简报告..."
+                const reportContainer = document.getElementById(`roundReportContent_${roundNum}`);
+                reportContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">🔄 正在生成精简报告...</div>';
+                document.getElementById(`roundReport_${roundNum}`).style.display = 'block';
+                
+                // 调用后端生成精简版汇总
+                const response = await fetch(`${API_BASE}/analysis/generate_summary`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        agent_opinions: progressData.agent_opinions || [],
+                        composite_score: progressData.composite_score,
+                        llm_api_key: llmApiKey
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // 显示精简版报告
+                reportContainer.innerHTML = `
+                    <h4>📋 第 ${roundNum} 轮各方观点汇总:</h4>
+                    <div class="opinions-container">
+                        ${data.opinions_html || '<p>暂无各方观点</p>'}
+                    </div>
+                    <div class="bystander-summary-section">
+                        <strong style="color: #667eea; font-size: 1.2em;">🤔 旁观者总结:</strong>
+                        <div class="bystander-summary-content">
+                            ${data.bystander_summary || '<p>等待旁观者分析...</p>'}
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <strong>📊 本轮综合得分: ${data.score}</strong>
+                    </div>
+                `;
+                
+                log(`✅ 第 ${roundNum} 轮精简报告生成完成`);
+                
+            } catch (error) {
+                log(`❌ 生成精简报告失败: ${error.message}`);
+                // 如果生成失败，显示原始数据
+                showRoundReport(roundNum, progressData);
+            }
+        }
+        
+        // 显示轮次控制
+        function showRoundControls(roundNum) {
+            document.getElementById(`roundControls_${roundNum}`).style.display = 'block';
+        }
+        
+        // 显示轮次报告
+        async function showRoundReport(roundNum, progressData) {
+            const reportContainer = document.getElementById(`roundReportContent_${roundNum}`);
+            
+            if (!reportContainer) {
+                console.error(`报告容器不存在: roundReportContent_${roundNum}`);
+                return;
+            }
+            
+            // 调试信息
+            console.log(`showRoundReport 被调用，轮次: ${roundNum}`);
+            console.log('progressData:', progressData);
+            console.log('agent_opinions:', progressData.agent_opinions);
+            
+            // 如果没有agent_opinions，显示等待状态
+            if (!progressData.agent_opinions || progressData.agent_opinions.length === 0) {
+                reportContainer.innerHTML = `
+                    <h4>📋 第 ${roundNum} 轮各方观点汇总:</h4>
+                    <div style="color: #999; text-align: center; padding: 20px;">
+                        正在等待智能体分析结果...
+                    </div>
+                `;
+                return;
+            }
+            
+            // 先显示原始数据
+            reportContainer.innerHTML = `
+                <h4>📋 第 ${roundNum} 轮各方观点汇总:</h4>
+                <div style="color: #666;">正在生成精简版报告...</div>
+            `;
+            
+            // 调用API生成精简报告
+            try {
+                const response = await fetch(`${API_BASE}/analysis/generate_summary`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        agent_opinions: progressData.agent_opinions,
+                        composite_score: progressData.composite_score
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    // 显示处理后的报告
+                    reportContainer.innerHTML = `
+                        <h4>📋 第 ${roundNum} 轮各方观点汇总:</h4>
+                        <div class="opinions-container">
+                            ${data.opinions_html}
+                        </div>
+                        <div class="bystander-summary-section">
+                            <strong style="color: #667eea; font-size: 1.2em;">🤔 旁观者总结:</strong>
+                            <div class="bystander-summary-content">
+                                ${data.bystander_summary}
+                            </div>
+                        </div>
+                        <div class="score-section">
+                            <strong>📊 本轮综合得分: ${data.score}</strong>
+                        </div>
+                    `;
+                } else {
+                    // API调用失败，显示原始数据
+                    displayRawReport(reportContainer, roundNum, progressData);
+                }
+            } catch (error) {
+                console.error('生成精简报告失败:', error);
+                // 出错时显示原始数据
+                displayRawReport(reportContainer, roundNum, progressData);
+            }
+        }
+        
+        // 显示原始报告（备选方案）
+        function displayRawReport(reportContainer, roundNum, progressData) {
+            // 构建各方观点展示（默认显示120字，可展开）
+            let opinionsHTML = '';
+            if (progressData.agent_opinions && progressData.agent_opinions.length > 0) {
+                progressData.agent_opinions.forEach((op, index) => {
+                    if (op.agent_name === '旁观者') return;
+                    
+                    let reasoning = op.reasoning || '无具体观点';
+                    // 移除markdown格式
+                    reasoning = reasoning
+                        .replace(/#{1,6}\s/g, '')
+                        .replace(/\*\*(.*?)\*\*/g, '$1')
+                        .replace(/\*(.*?)\*/g, '$1')
+                        .replace(/`(.*?)`/g, '$1')
+                        .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+                        .replace(/\n\n+/g, '</p><p>')
+                        .replace(/\n/g, '<br>')
+                        .trim();
+                    
+                    const reasoningId = `opinion_${roundNum}_${index}`;
+                    const isLong = reasoning.length > 120;
+                    
+                    opinionsHTML += `
+                        <div class="opinion-item">
+                            <strong>${getAgentIcon(op.agent_name)} ${op.agent_name}:</strong>
+                            <div class="opinion-content" id="${reasoningId}">
+                                ${isLong ? reasoning.substring(0, 120) + '...' : reasoning}
+                            </div>
+                            ${isLong ? `
+                                <button class="expand-btn" onclick="toggleOpinion('${reasoningId}', ${index}, '${reasoning.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')">
+                                    展开全文
+                                </button>
+                                <span class="full-text" id="full_${reasoningId}" style="display: none;">${reasoning}</span>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+            }
+            
+            // 提取旁观者总结（500字以内）
+            let bystanderSummary = '等待旁观者分析...';
+            if (progressData.agent_opinions && progressData.agent_opinions.length > 0) {
+                const bystanderOpinion = progressData.agent_opinions.find(op => op.agent_name === '旁观者');
+                if (bystanderOpinion && bystanderOpinion.reasoning) {
+                    let summary = bystanderOpinion.reasoning
+                        .replace(/#{1,6}\s/g, '')
+                        .replace(/\*\*/g, '')
+                        .replace(/\*/g, '')
+                        .replace(/`/g, '')
+                        .replace(/_/g, '')
+                        .replace(/\n\n+/g, '</p><p style="margin: 8px 0;">')
+                        .replace(/\n/g, '<br>')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                    
+                    if (summary.length > 500) {
+                        summary = summary.substring(0, 500);
+                        const lastPeriod = Math.max(
+                            summary.lastIndexOf('。'),
+                            summary.lastIndexOf('！'),
+                            summary.lastIndexOf('？')
+                        );
+                        if (lastPeriod > 450) {
+                            summary = summary.substring(0, lastPeriod + 1);
+                        } else {
+                            summary += '...';
+                        }
+                    }
+                    
+                    bystanderSummary = `<p style="margin: 8px 0;">${summary}</p>`;
+                }
+            }
+            
+            const score = progressData.composite_score !== undefined ? progressData.composite_score.toFixed(3) : '计算中';
+            
+            reportContainer.innerHTML = `
+                <h4>📋 第 ${roundNum} 轮各方观点汇总:</h4>
+                <div class="opinions-container">
+                    ${opinionsHTML}
+                </div>
+                <div class="bystander-summary-section">
+                    <strong style="color: #667eea; font-size: 1.2em;">🤔 旁观者总结:</strong>
+                    <div class="bystander-summary-content">
+                        ${bystanderSummary}
+                    </div>
+                </div>
+                <div class="score-section">
+                    <strong>📊 本轮综合得分: ${score}</strong>
+                </div>
+            `;
+            
+            document.getElementById(`roundReport_${roundNum}`).style.display = 'block';
+        }
+        
+        // 切换观点的展开/收起状态
+        function toggleOpinion(contentId, index, fullText) {
+            const contentDiv = document.getElementById(contentId);
+            const fullTextSpan = document.getElementById(`full_${contentId}`);
+            const button = contentDiv.nextElementSibling;
+            
+            if (!contentDiv || !button) return;
+            
+            if (button.textContent === '展开全文') {
+                // 展开
+                contentDiv.innerHTML = fullText;
+                button.textContent = '收起';
+            } else {
+                // 收起
+                contentDiv.innerHTML = fullText.substring(0, 120) + '...';
+                button.textContent = '展开全文';
+            }
+        }
+        
+        // 智能补全事件信息
+        async function enrichEvent() {
+            const eventName = document.getElementById('eventName').value.trim();
+            if (!eventName) {
+                alert('请输入事件名称');
+                return;
+            }
+            
+            if (!llmApiKey) {
+                alert('请先配置大模型 API Key');
+                reconfigureApiKeys();
+                return;
+            }
+            
+            try {
+                log(`正在搜索信息并进行语义分析: ${eventName}`);
+                document.getElementById('enrichBtn').disabled = true;
+                document.getElementById('enrichBtn').textContent = '🔍 智能补全中...';
+                
+                const response = await fetch(`${API_BASE}/events/enrich`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        name: eventName,
+                        llm_api_key: llmApiKey,
+                        search_api_key: searchApiKey
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                document.getElementById('eventName').value = data.name;
+                document.getElementById('eventDescription').value = data.description;
+                document.getElementById('eventCategory').value = data.category;
+                
+                log(`智能补全完成`);
+                log(`事件名称: ${data.name}`);
+                log(`类别: ${data.category}`);
+                if (data.key_points && data.key_points.length > 0) {
+                    log(`关键点: ${data.key_points.join(', ')}`);
+                } else {
+                    log('未提取到关键点');
+                }
+                
+                // 启用开始分析按钮
+                document.getElementById('analyzeBtn').disabled = false;
+                log('✅ 信息已补全，现在可以开始分析');
+                
+            } catch (error) {
+                log(`补全失败: ${error.message}`);
+                alert(`补全失败: ${error.message}`);
+            } finally {
+                document.getElementById('enrichBtn').disabled = false;
+                document.getElementById('enrichBtn').textContent = '🔍 智能补全信息';
+            }
+        }
+        
+        // 开始分析
+        async function startAnalysis() {
+            eventName = document.getElementById('eventName').value.trim();
+            const eventDescription = document.getElementById('eventDescription').value.trim();
+            const eventCategory = document.getElementById('eventCategory').value;
+            
+            if (!eventName || !eventDescription) {
+                alert('请填写完整的事件信息');
+                return;
+            }
+            
+            if (!llmApiKey) {
+                alert('请先配置大模型 API Key');
+                reconfigureApiKeys();
+                return;
+            }
+            
+            // 清空之前的轮次数据
+            allRoundsData = [];
+            roundNumber = 0;
+            
+            const event = {
+                id: 'event_' + Date.now(),
+                name: eventName,
+                description: eventDescription,
+                category: eventCategory,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                log(`开始分析事件: ${eventName}`);
+                
+                // 发送分析请求
+                const response = await fetch(`${API_BASE}/analysis`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        event: event,
+                        llm_api_key: llmApiKey,
+                        search_api_key: searchApiKey
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                log(`分析任务已启动: ${data.task_id}`);
+                currentTaskId = data.task_id;
+                
+                // 连接WebSocket以获取实时进度
+                connectWebSocket(data.task_id);
+                
+            } catch (error) {
+                log(`分析启动失败: ${error.message}`);
+                alert(`分析启动失败: ${error.message}`);
+            }
+        }
+        
+        // WebSocket连接
+        function connectWebSocket(taskId) {
+            currentTaskId = taskId;
+            roundNumber = 0;
+            
+            // 关闭之前的连接
+            if (ws) {
+                ws.close();
+            }
+            
+            // 构建WebSocket URL
+            const wsUrl = `ws://localhost:8000/ws/progress`;
+            
+            try {
+                ws = new WebSocket(wsUrl);
+                
+                ws.onopen = function(event) {
+                    log('WebSocket连接已建立 ✅');
+                    
+                    // 注册任务ID
+                    const registerMsg = {
+                        type: 'register_task',
+                        task_id: taskId
+                    };
+                    ws.send(JSON.stringify(registerMsg));
+                    log(`已发送任务注册: ${taskId} 📝`);
+                };
+                
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        log(`收到WebSocket消息 📬`);
+                        
+                        // 检查是否为任务注册确认
+                        if (data.type === 'task_registered') {
+                            log(`✅ 任务 ${data.task_id} 注册成功，等待推演开始...`);
+                        } else {
+                            // 处理进度更新
+                            handleProgressUpdate(data);
+                        }
+                    } catch (e) {
+                        log(`❌ WebSocket消息解析失败: ${e.message}`);
+                    }
+                };
+                
+                ws.onclose = function(event) {
+                    log('WebSocket连接已关闭 🔌');
+                };
+                
+                ws.onerror = function(error) {
+                    log(`⚠️ WebSocket错误: ${error.message}`);
+                };
+                
+            } catch (error) {
+                log(`❌ WebSocket连接失败: ${error.message}`);
+            }
+        }
+        
+        // WebSocket消息处理
+        function handleProgressUpdate(data) {
+            if (data.task_id !== currentTaskId) {
+                return;
+            }
+            
+            const progressData = data.progress_data || data;
+            
+            switch (progressData.status) {
+                case 'started':
+                    log(`推演开始: ${progressData.event_name}`);
+                    createRoundDisplay(1); // 创建第一轮显示
+                    roundNumber = 1;
+                    break;
+                    
+                case 'round_started':
+                    const newRoundNum = progressData.current_round;
+                    log(`第 ${newRoundNum} 轮推演开始...`);
+                    if (!document.getElementById(`round_${newRoundNum}_container`)) {
+                        createRoundDisplay(newRoundNum);
+                    }
+                    roundNumber = newRoundNum;
+                    break;
+                    
+                case 'round_completed':
+                    const score = progressData.composite_score !== undefined ? progressData.composite_score.toFixed(3) : '计算中';
+                    log(`第 ${roundNumber} 轮完成，综合得分: ${score}`);
+                    updateMetricsDisplay(roundNumber, progressData.metrics || {});
+                    
+                    // 保存轮次数据
+                    allRoundsData.push({
+                        round: roundNumber,
+                        metrics: progressData.metrics || {},
+                        agent_opinions: progressData.agent_opinions || [],
+                        bystander_summary: progressData.bystander_summary || ''
+                    });
+                    
+                    // 调用后端生成精简版汇总
+                    generateAndShowSummary(roundNumber, progressData);
+                    
+                    // 显示控制按钮
+                    showRoundControls(roundNumber);
+                    break;
+                    
+                case 'target_reached':
+                case 'converged':
+                case 'completed':
+                    const finalScore = progressData.composite_score !== undefined ? progressData.composite_score.toFixed(3) : '计算中';
+                    log(`推演完成，最终得分: ${finalScore}`);
+                    break;
+                    
+                case 'error':
+                    log(`推演出错: ${progressData.message}`);
+                    break;
+                    
+                // 智能体活动 - 确保轮次显示已创建
+                case 'agent_searching':
+                    log(`🔍 ${progressData.agent_name} 正在搜索: ${progressData.query}`);
+                    if (roundNumber === 0) roundNumber = 1;
+                    if (!document.getElementById(`round_${roundNumber}_container`)) {
+                        createRoundDisplay(roundNumber);
+                    }
+                    updateAgentActivity(roundNumber, progressData.agent_name, '🔍 搜索中', progressData.query.substring(0, 60) + '...');
+                    break;
+                    
+                case 'agent_analyzing':
+                    log(`🧠 ${progressData.agent_name} 正在分析中...`);
+                    if (roundNumber === 0) roundNumber = 1;
+                    if (!document.getElementById(`round_${roundNumber}_container`)) {
+                        createRoundDisplay(roundNumber);
+                    }
+                    updateAgentActivity(roundNumber, progressData.agent_name, '🧠 分析中');
+                    break;
+                    
+                case 'agent_completed':
+                    log(`✅ ${progressData.agent_name} 分析完成`);
+                    if (roundNumber === 0) roundNumber = 1;
+                    if (!document.getElementById(`round_${roundNumber}_container`)) {
+                        createRoundDisplay(roundNumber);
+                    }
+                    updateAgentActivity(roundNumber, progressData.agent_name, '✅ 已完成');
+                    break;
+                    
+                case 'agent_search_completed':
+                    log(`🔍 ${progressData.agent_name} 搜索完成 (${progressData.results_count}个结果)`);
+                    if (roundNumber === 0) roundNumber = 1;
+                    if (!document.getElementById(`round_${roundNumber}_container`)) {
+                        createRoundDisplay(roundNumber);
+                    }
+                    updateAgentActivity(roundNumber, progressData.agent_name, '🔍 搜索完成待LLM分析', `找到 ${progressData.results_count} 个结果`);
+                    break;
+                    
+                case 'bystander_summary':
+                    log(`🤔 旁观者总结: ${progressData.summary}`);
+                    if (roundNumber === 0) roundNumber = 1;
+                    if (!document.getElementById(`round_${roundNumber}_container`)) {
+                        createRoundDisplay(roundNumber);
+                    }
+                    showBystanderSummary(roundNumber, progressData.summary);
+                    break;
+            }
+        }
+        
+        // 获取状态类
+        function getStatusClass(status) {
+            if (status.includes('中')) return 'status-active';
+            if (status.includes('待命')) return 'status-pending';
+            if (status.includes('完成')) return 'status-completed';
+            return 'status-pending';
+        }
+        
+        // 继续下一轮推演
+        async function continueToNextRound(currentRound) {
+            log(`🔄 开始下一轮推演...`);
+            if (!currentTaskId) {
+                alert('没有正在进行的推演任务');
+                return;
+            }
+            
+            try {
+                // 创建下一轮显示
+                const nextRound = currentRound + 1;
+                createRoundDisplay(nextRound);
+                roundNumber = nextRound;
+                
+                // 发送继续推演请求
+                const response = await fetch(`${API_BASE}/analysis/control`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        task_id: currentTaskId,
+                        action: 'next_round',
+                        round: currentRound
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ ${data.message}`);
+                    
+                    // 滚动到新的轮次
+                    setTimeout(() => {
+                        const newRoundContainer = document.getElementById(`round_${nextRound}_container`);
+                        if (newRoundContainer) {
+                            newRoundContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }, 100);
+                } else {
+                    log('❌ 下一轮推演请求失败');
+                    alert('开始下一轮推演失败，请重试');
+                }
+            } catch (error) {
+                log(`❌ 下一轮推演请求出错: ${error.message}`);
+                alert('下一轮推演出错: ' + error.message);
+            }
+        }
+        
+        // 中止推演
+        async function terminateSimulation(currentRound) {
+            console.log('=== 中止推演被调用 ===');
+            console.log('当前轮次:', currentRound);
+            console.log('currentTaskId:', currentTaskId);
+            console.log('allRoundsData.length:', allRoundsData.length);
+            
+            log('中止推演...');
+            if (!currentTaskId) {
+                alert('没有正在进行的推演任务');
+                return;
+            }
+            
+            try {
+                log('发送中止请求到服务器...');
+                const response = await fetch(`${API_BASE}/analysis/control`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        task_id: currentTaskId,
+                        action: 'terminate',
+                        round: currentRound
+                    })
+                });
+                
+                console.log('中止响应状态:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('推演中止请求已发送');
+                    console.log('服务器响应:', data);
+                    
+                    // 如果有2轮或以上数据，打开时间线生成页面
+                    if (allRoundsData.length >= 2) {
+                        log(`准备打开时间线生成页面...（${allRoundsData.length}轮数据）`);
+                        
+                        // 将数据保存到sessionStorage
+                        sessionStorage.setItem('timeline_roundsData', JSON.stringify(allRoundsData));
+                        sessionStorage.setItem('timeline_eventName', eventName);
+                        
+                        // 打开新的时间线页面
+                        const timelineWindow = window.open('/timeline.html', '_blank', 'width=1400,height=800,scrollbars=yes');
+                        
+                        if (timelineWindow) {
+                            log('✅ 已打开时间线生成页面');
+                            alert('推演已中止，正在打开时间线生成页面...\n\n提示：在新页面中可以选择"优化模式"来处理大数据量，避免JSON被截断。');
+                        } else {
+                            log('❌ 无法打开新页面，请检查浏览器弹窗设置');
+                            alert('无法打开新页面，请检查浏览器是否允许弹窗。\n\n您也可以手动访问: http://localhost:8000/timeline.html');
+                        }
+                    } else {
+                        log(`轮数不足2轮（${allRoundsData.length}轮），跳过时间线生成`);
+                        alert('推演已中止');
+                    }
+                } else {
+                    log('推演中止请求失败，状态码: ' + response.status);
+                    alert('推演中止失败，请重试');
+                }
+            } catch (error) {
+                console.error('推演中止错误:', error);
+                log('推演中止请求出错: ' + error.message);
+                alert('推演中止出错: ' + error.message);
+            }
+        }
+        
+        // 生成并展示时间线
+        async function generateAndShowTimeline() {
+            console.log('=== 开始生成时间线 ===');
+            console.log('轮数数据:', allRoundsData);
+            console.log('事件名称:', eventName);
+            
+            // 显示全屏加载遮罩
+            document.getElementById('fullscreenLoader').style.display = 'flex';
+            document.getElementById('loaderTitle').textContent = '正在生成思想演变时间线';
+            document.getElementById('loaderMessage').textContent = 'AI正在分析多轮推演数据，生成思想演变轨迹，请稍候...';
+            
+            try {
+                log('正在调用时间线API...');
+                const response = await fetch(`${API_BASE}/analysis/generate_timeline`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        rounds: allRoundsData,
+                        event_name: eventName,
+                        llm_api_key: llmApiKey
+                    })
+                });
+                
+                console.log('时间线API响应状态:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('时间线API错误响应:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('时间线数据:', data);
+                log('时间线生成完成');
+                showTimeline(data);
+                alert('推演已中止，时间线总结已生成');
+            } catch (error) {
+                console.error('时间线生成错误:', error);
+                log('时间线生成出错: ' + error.message);
+                alert('时间线生成出错: ' + error.message);
+            } finally {
+                // 隐藏全屏加载遮罩
+                document.getElementById('fullscreenLoader').style.display = 'none';
+            }
+        }
+        
+        // 展示时间线
+        function showTimeline(timelineData) {
+            const container = document.getElementById('roundsContainer');
+            
+            console.log('showTimeline 接收到的数据:', timelineData);
+            console.log('timelineData 类型:', typeof timelineData);
+            
+            // 如果timelineData是字符串，尝试解析为JSON
+            if (typeof timelineData === 'string') {
+                console.log('timelineData 是字符串，尝试解析JSON');
+                try {
+                    // 尝试去除可能存在的markdown代码块标记
+                    let jsonStr = timelineData.trim();
+                    if (jsonStr.startsWith('```json')) {
+                        jsonStr = jsonStr.substring(7);
+                    }
+                    if (jsonStr.startsWith('```')) {
+                        jsonStr = jsonStr.substring(3);
+                    }
+                    if (jsonStr.endsWith('```')) {
+                        jsonStr = jsonStr.substring(0, jsonStr.length - 3);
+                    }
+                    jsonStr = jsonStr.trim();
+                    
+                    timelineData = JSON.parse(jsonStr);
+                    console.log('JSON解析成功:', timelineData);
+                } catch (e) {
+                    console.error('JSON解析失败:', e);
+                    // 如果解析失败，显示原始字符串
+                    const timelineDiv = document.createElement('div');
+                    timelineDiv.className = 'card';
+                    timelineDiv.style.marginTop = '30px';
+                    timelineDiv.innerHTML = `
+                        <h2 style="color: #667eea; margin-bottom: 25px;">📊 思想演变时间线</h2>
+                        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444;">
+                            <p style="color: #ef4444; font-weight: bold;">数据解析失败</p>
+                            <p style="color: #666; margin-top: 10px;">无法解析时间线数据，原始数据如下：</p>
+                            <pre style="background: #1e293b; color: #e2e8f0; padding: 15px; border-radius: 6px; overflow-x: auto; margin-top: 10px; font-size: 0.9em;">${timelineData}</pre>
+                        </div>
+                    `;
+                    container.appendChild(timelineDiv);
+                    timelineDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return;
+                }
+            }
+            
+            // 检查数据结构是否正确
+            if (!timelineData || (!timelineData.timeline && !timelineData.overall_trend)) {
+                console.error('timelineData 结构不正确:', timelineData);
+                const timelineDiv = document.createElement('div');
+                timelineDiv.className = 'card';
+                timelineDiv.style.marginTop = '30px';
+                timelineDiv.innerHTML = `
+                    <h2 style="color: #667eea; margin-bottom: 25px;">📊 思想演变时间线</h2>
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444;">
+                        <p style="color: #ef4444; font-weight: bold;">数据格式错误</p>
+                        <p style="color: #666; margin-top: 10px;">时间线数据格式不正确，请检查后端API返回数据。</p>
+                        <pre style="background: #1e293b; color: #e2e8f0; padding: 15px; border-radius: 6px; overflow-x: auto; margin-top: 10px; font-size: 0.9em;">${JSON.stringify(timelineData, null, 2)}</pre>
+                    </div>
+                `;
+                container.appendChild(timelineDiv);
+                timelineDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+            
+            // 创建时间线容器
+            const timelineDiv = document.createElement('div');
+            timelineDiv.className = 'card';
+            timelineDiv.style.marginTop = '30px';
+            timelineDiv.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
+            timelineDiv.style.maxWidth = '1200px';
+            timelineDiv.style.marginLeft = 'auto';
+            timelineDiv.style.marginRight = 'auto';
+            
+            // 检查是否有错误信息
+            if (timelineData.error) {
+                timelineDiv.innerHTML = `
+                    <h2 style="color: #667eea; margin-bottom: 25px; font-size: 1.5em; text-align: center;">📊 思想演变时间线</h2>
+                    <div style="background: #fef3c7; padding: 25px; border-radius: 12px; border-left: 4px solid #f59e0b; margin-bottom: 30px;">
+                        <p style="color: #92400e; font-weight: bold; margin-bottom: 10px;">⚠️ 生成时间线时出现错误</p>
+                        <p style="color: #92400e; margin-bottom: 10px;">${timelineData.error}</p>
+                    </div>
+                    <div class="bystander-summary" style="padding: 25px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <strong style="color: #667eea; font-size: 1.1em;">📈 原始响应</strong>
+                        <p style="margin-top: 12px; line-height: 1.8; color: #333; font-size: 1em;">${timelineData.overall_trend}</p>
+                    </div>
+                `;
+                container.appendChild(timelineDiv);
+                timelineDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+            
+            let html = `
+                <h2 style="color: #667eea; margin-bottom: 25px; font-size: 1.5em; text-align: center;">📊 思想演变时间线</h2>
+                
+                <div class="bystander-summary" style="margin-bottom: 30px; padding: 25px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <strong style="color: #667eea; font-size: 1.1em;">📈 整体趋势</strong>
+                    <p style="margin-top: 12px; line-height: 1.8; color: #333; font-size: 1em;">${timelineData.overall_trend || '暂无整体趋势分析'}</p>
+                </div>
+                
+                <div class="timeline-container">
+            `;
+            
+            // 添加每轮的时间线
+            if (timelineData.timeline && timelineData.timeline.length > 0) {
+                timelineData.timeline.forEach((roundData, index) => {
+                    html += `
+                        <div class="timeline-item">
+                            <h3>${roundData.title || `第${roundData.round}轮`}</h3>
+                    `;
+                    
+                    // 添加智能体观点
+                    if (roundData.agents && roundData.agents.length > 0) {
+                        html += '<div class="timeline-agents">';
+                        roundData.agents.forEach(agent => {
+                            html += `
+                                <div class="timeline-agent">
+                                    <strong>${getAgentIcon(agent.name)} ${agent.name}</strong>
+                                    <div>${agent.core_view}</div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                    }
+                    
+                    // 添加旁观者总结
+                    if (roundData.bystander) {
+                        html += `
+                            <div class="timeline-bystander">
+                                <strong>🤔 旁观者总结：</strong>
+                                <div>${roundData.bystander.summary}</div>
+                                ${roundData.bystander.key_insights && roundData.bystander.key_insights.length > 0 ? `
+                                    <div>
+                                        <strong>关键洞察：</strong>
+                                        <ul>
+                                            ${roundData.bystander.key_insights.map(insight => `<li>${insight}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+                    
+                    html += '</div>';
+                });
+            }
+            
+            html += '</div>';
+            
+            timelineDiv.innerHTML = html;
+            container.appendChild(timelineDiv);
+            
+            // 滚动到时间线
+            timelineDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            log('PentaFlow 五维推演系统已加载');
+            log('API 基础URL: ' + API_BASE);
+            
+            // 加载 API Keys
+            loadApiKeys();
+            
+            // 预填充一些示例数据以供参考
+            document.getElementById('eventName').placeholder = '例如：Seedance 2.0 发布、GPT-5 官宣...';
+            document.getElementById('eventDescription').placeholder = '输入事件详细描述...';
+        });
+    </script>
+</body>
+</html>
