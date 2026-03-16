@@ -23,7 +23,7 @@ PentaFlow 五维推演是基于 FastAPI 和现代异步架构的 AI 事件影响
 
 <div align="center">
 
-[🎬 快速体验演示模式](demo/simulation.html) • [🚀 开始使用](#-快速开始)
+[🎬 快速体验演示模式]([demo/simulation.html](https://raw.githubusercontent.com/liu222222222222/PentaFlow/main/demo/simulation.html)) • [🚀 开始使用](#-快速开始)
 
 </div>
 
