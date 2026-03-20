@@ -362,6 +362,9 @@ DEBUG=False
 - **GitHub**: https://github.com/liu222222222222/
 - **版本**: 1.0.0
 - **发布日期**: 2026-03-16
+  
+- 欢迎大家关注我的 杠杆说AI 公众号：
+<img width="400" height="400" alt="image" src="https://github.com/user-attachments/assets/8645b2f6-f133-4d81-b47b-da9871cf2099" />
 
 ---
 
