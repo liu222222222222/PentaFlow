@@ -18,6 +18,9 @@ from app.services.analysis_service import SimulationEngine
 from app.services.llm_service import get_llm_service
 from config import settings
 from app.services.websocket_service import send_progress_update_to_task
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter()
@@ -57,7 +60,7 @@ async def start_analysis(request: AnalysisRequest, background_tasks: BackgroundT
             "search_api_key": request.search_api_key
         }
         
-        print(f"🚀 启动分析任务: {task_id}")
+        logger.info(f"启动分析任务: {task_id}")
         
         # 启动后台分析任务
         background_tasks.add_task(
@@ -73,7 +76,7 @@ async def start_analysis(request: AnalysisRequest, background_tasks: BackgroundT
         )
         
     except Exception as e:
-        print(f"❌ 分析启动失败: {e}")
+        logger.error(f"分析启动失败: {e}")
         raise HTTPException(status_code=500, detail=f"分析启动失败: {str(e)}")
 
 
@@ -199,7 +202,7 @@ async def generate_summary(request: dict):
         }
         
     except Exception as e:
-        print(f"❌ 生成精简报告失败: {e}")
+        logger.error(f"生成精简报告失败: {e}")
         raise HTTPException(status_code=500, detail=f"生成精简报告失败: {str(e)}")
 
 
@@ -213,7 +216,7 @@ async def control_analysis(request: dict, background_tasks: BackgroundTasks):
         
         if action == "next_round":
             # 启动下一轮推演
-            print(f"🔄 请求启动下一轮推演，任务ID: {task_id}，当前轮次: {round}")
+            logger.info(f"请求启动下一轮推演，任务ID: {task_id}，当前轮次: {round}")
             
             # 获取之前的事件信息和前一轮结果
             from pathlib import Path
@@ -297,7 +300,7 @@ async def control_analysis(request: dict, background_tasks: BackgroundTasks):
             return {"message": f"未知操作: {action}", "status": "unknown_action"}
             
     except Exception as e:
-        print(f"❌ 控制操作失败: {e}")
+        logger.error(f"控制操作失败: {e}")
         raise HTTPException(status_code=500, detail=f"控制操作失败: {str(e)}")
 
 
@@ -358,105 +361,107 @@ async def generate_timeline(request: dict):
             user_prompt=timeline_prompt
         )
         
-        print(f"📝 LLM返回的时间线响应长度: {len(response)} 字符")
-        print(f"📝 LLM返回的时间线响应前500字符:\n{response[:500]}")
-        print(f"📝 LLM返回的时间线响应后500字符:\n{response[-500:]}")
+        logger.debug(f"LLM返回的时间线响应长度: {len(response)} 字符")
+        logger.debug(f"LLM返回的时间线响应前500字符:\n{response[:500]}")
+        logger.debug(f"LLM返回的时间线响应后500字符:\n{response[-500:]}")
         
         # 解析JSON响应
         try:
             import re
             # 首先尝试从markdown代码块中提取JSON
-            json_match = re.search(r'```json\s*(\{[\s\S]*\})\s*```', response)
+            json_match = re.search(r'```json\s*([\s\S]*?)\s*```', response)
             if json_match:
-                response = json_match.group(1)
-                print(f"✅ 从markdown代码块中提取JSON成功，JSON长度: {len(response)} 字符")
+                response = json_match.group(1).strip()
+                logger.debug(f"从markdown代码块中提取JSON成功，JSON长度: {len(response)} 字符")
             else:
                 # 如果没有markdown代码块，尝试直接查找JSON
-                # 优化：查找从第一个{到最后一个}的完整JSON
+                # 查找从第一个{到最后一个}的完整JSON
                 first_brace = response.find('{')
                 last_brace = response.rfind('}')
                 if first_brace >= 0 and last_brace > first_brace:
                     response = response[first_brace:last_brace + 1]
-                    print(f"✅ 从第一个{{到最后一个}}提取JSON成功，JSON长度: {len(response)} 字符")
+                    logger.debug(f"从第一个{{到最后一个}}提取JSON成功，JSON长度: {len(response)} 字符")
                 else:
-                    print(f"⚠️ 无法找到JSON格式的内容")
+                    logger.warning(f"无法找到JSON格式的内容")
                     raise ValueError("无法找到有效的JSON结构")
             
-            # 检查JSON是否完整
-            if not response.strip().endswith('}'):
-                print(f"⚠️ JSON字符串可能不完整，最后100字符: {response[-100:]}")
-                # 尝试修复不完整的JSON
-                brace_count = response.count('{') - response.count('}')
-                if brace_count > 0:
-                    print(f"⚠️ 检测到缺少 {brace_count} 个右括号")
-                    response = response + '}' * brace_count
-                    print(f"✅ 尝试修复JSON，添加了 {brace_count} 个右括号")
-            
-            # 检查是否缺少引号或逗号
-            # 简单的修复：确保所有对象都正确闭合
-            response = response.strip()
-            if not response.endswith('}'):
-                response = response + '}'
-                print(f"✅ 在末尾添加了右括号")
-            
-            timeline_data = json.loads(response)
-            print(f"✅ JSON解析成功，包含 {len(timeline_data.get('timeline', []))} 轮数据")
-        except json.JSONDecodeError as e:
-            # 如果解析失败，返回原始响应
-            print(f"❌ JSON解析失败: {e}")
-            print(f"❌ 解析位置: {e.pos if hasattr(e, 'pos') else '未知'}")
-            print(f"❌ 错误信息: {e.msg}")
-            print(f"❌ 尝试解析的内容长度: {len(response)}")
-            print(f"❌ 尝试解析的内容前1000字符:\n{response[:1000]}")
-            print(f"❌ 尝试解析的内容后1000字符:\n{response[-1000:]}")
-            
-            # 尝试提取可用的部分数据
+            # 尝试解析JSON
             try:
-                # 尝试找到最后一个完整的轮次
-                last_round_match = re.search(r'(\{[^{}]*"round"\s*:\s*\d+[^{}]*\}(?=[^{}]*\}\s*\]\s*,?\s*"overall_trend")', response)
-                if last_round_match:
-                    print(f"✅ 找到最后一个完整的轮次数据")
-                    # 返回部分成功的数据
-                    partial_json = response[:last_round_match.end() + 1]
-                    partial_json = partial_json.rstrip(',') + '}'
-                    timeline_data = json.loads(partial_json)
-                    timeline_data['error'] = f"部分数据解析成功，但可能不完整。原始错误: {str(e)}"
-                    print(f"✅ 部分数据解析成功")
-                else:
-                    raise e
-            except:
-                # 如果连部分数据都无法解析，返回原始响应
-                timeline_data = {
-                    "timeline": [],
-                    "overall_trend": f"数据解析失败，无法生成时间线总结。\n\n错误信息: {str(e)}\n\n解析位置: {e.pos if hasattr(e, 'pos') else '未知'}\n\n原始响应（前2000字符）:\n{response[:2000]}",
-                    "error": f"JSON解析失败: {str(e)}"
-                }
+                timeline_data = json.loads(response)
+                logger.info(f"JSON解析成功，包含 {len(timeline_data.get('timeline', []))} 轮数据")
+            except json.JSONDecodeError as e:
+                # 尝试修复常见的JSON格式问题
+                logger.warning(f"初次JSON解析失败，尝试修复: {e}")
+                
+                # 修复1: 移除尾部逗号
+                response = re.sub(r',(\s*[}\]])', r'\1', response)
+                
+                # 修复2: 修复未闭合的字符串
+                # 如果最后一个字符是反斜杠，可能是未闭合的转义
+                if response.rstrip().endswith('\\'):
+                    response = response.rstrip()[:-1]
+                
+                # 修复3: 确保JSON以}结尾
+                response = response.rstrip()
+                if not response.endswith('}'):
+                    # 计算括号平衡
+                    open_braces = response.count('{')
+                    close_braces = response.count('}')
+                    if open_braces > close_braces:
+                        response += '}' * (open_braces - close_braces)
+                
+                # 再次尝试解析
+                try:
+                    timeline_data = json.loads(response)
+                    logger.info(f"JSON修复后解析成功")
+                except json.JSONDecodeError as e2:
+                    logger.error(f"JSON修复后仍解析失败: {e2}")
+                    raise e2
+                    
+        except json.JSONDecodeError as e:
+            # 如果解析失败，返回原始响应作为文本总结
+            logger.error(f"JSON解析失败: {e}")
+            logger.error(f"解析位置: {e.pos if hasattr(e, 'pos') else '未知'}")
+            logger.error(f"错误信息: {e.msg}")
+            
+            # 尝试从响应中提取有用的文本内容作为总结
+            # 移除markdown代码块标记
+            clean_response = re.sub(r'```json\s*|\s*```', '', response)
+            # 尝试提取overall_trend部分
+            trend_match = re.search(r'"overall_trend"\s*:\s*"([^"]+)"', clean_response, re.DOTALL)
+            overall_trend = trend_match.group(1) if trend_match else clean_response[:2000]
+            
+            timeline_data = {
+                "timeline": [],
+                "overall_trend": overall_trend,
+                "error": f"JSON解析失败，显示原始内容。错误: {str(e)}"
+            }
         
         return timeline_data
         
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ 生成时间线失败: {e}")
+        logger.error(f"生成时间线失败: {e}")
         raise HTTPException(status_code=500, detail=f"生成时间线失败: {str(e)}")
 
 
 async def run_analysis_task(task_id: str, event: Dict, max_rounds=1, start_round=1):
     """后台执行分析任务"""
-    print(f"⚙️ 开始执行任务 {task_id} 的分析，最大轮数: {max_rounds}，起始轮次: {start_round}")
+    logger.info(f"开始执行任务 {task_id} 的分析，最大轮数: {max_rounds}，起始轮次: {start_round}")
     try:
         # 强制设置API key到settings（只在用户提供了新的 key 时才更新）
         if event.get("llm_api_key"):
             settings.llm_api_key = event["llm_api_key"]
-            print(f"✅ 使用用户提供的LLM API Key")
+            logger.info(f"使用用户提供的LLM API Key")
         else:
-            print(f"✅ 使用默认LLM API Key（用户未提供）")
+            logger.info(f"使用默认LLM API Key（用户未提供）")
         
         if event.get("search_api_key"):
             settings.tavily_api_key = event["search_api_key"]
-            print(f"✅ 使用用户提供的搜索API Key")
+            logger.info(f"使用用户提供的搜索API Key")
         else:
-            print(f"✅ 使用默认搜索API Key（用户未提供）")
+            logger.info(f"使用默认搜索API Key（用户未提供）")
         
         # 初始化引擎
         await simulation_engine.initialize()
@@ -464,7 +469,7 @@ async def run_analysis_task(task_id: str, event: Dict, max_rounds=1, start_round
         # 注册进度回调（用于WebSocket通知）
         progress_callback = create_progress_callback(task_id)
         simulation_engine.register_progress_callback(progress_callback)
-        print(f"✅ 进度回调已注册到引擎，任务ID: {task_id}")
+        logger.info(f"进度回调已注册到引擎，任务ID: {task_id}")
         
         # 执行推演（只执行指定轮数，从指定轮次开始）
         result = await simulation_engine.run_simulation(event, progress_callback, max_rounds=max_rounds, start_round=start_round)
@@ -479,10 +484,10 @@ async def run_analysis_task(task_id: str, event: Dict, max_rounds=1, start_round
             "result": result.dict(),
             "message": "推演分析完成"
         })
-        print(f"✅ 任务 {task_id} 分析完成，结果已发送")
+        logger.info(f"任务 {task_id} 分析完成，结果已发送")
         
     except Exception as e:
-        print(f"❌ 任务 {task_id} 执行失败: {e}")
+        logger.error(f"任务 {task_id} 执行失败: {e}")
         await send_progress_update(task_id, {
             "status": "error",
             "task_id": task_id,
@@ -510,35 +515,6 @@ def create_progress_callback(task_id: str) -> Callable:
     return callback
 
 
-async def send_progress_update(task_id: str, update_data: Dict):
-    """发送进度更新到WebSocket连接"""
-    # 从全局WebSocket管理器获取连接
-    try:
-        # 先尝试发送到特定任务的WebSocket连接
-        from app.main import task_websockets
-        if task_id in task_websockets:
-            ws = task_websockets[task_id]
-            try:
-                await ws.send_text(json.dumps(update_data, ensure_ascii=False))
-                print(f"✅ 成功发送消息到任务 {task_id}: {update_data.get('status', 'unknown status')}")
-                return  # 成功发送，返回
-            except Exception as e:
-                print(f"❌ 发送WebSocket消息到特定连接失败 {task_id}: {e}")
-                # 移除无效连接
-                if task_id in task_websockets:
-                    del task_websockets[task_id]
-        
-        # 如果特定连接失败或不存在，尝试使用全局管理器
-        print(f"⚠️ 未找到任务 {task_id} 的WebSocket连接，尝试使用全局管理器")
-        from app.main import manager
-        await manager.broadcast(json.dumps(update_data, ensure_ascii=False))
-        print(f"✅ 已通过全局管理器发送消息到任务 {task_id}")
-    except Exception as e:
-        print(f"❌ 获取WebSocket连接失败: {e}")
-        # 如果全局连接不可用，仅记录日志
-        print(f"📝 本地记录进度更新: {update_data}")
-
-
 def create_progress_callback(task_id: str) -> Callable:
     """创建进度回调函数"""
     async def callback(progress_data: Dict):
@@ -557,16 +533,16 @@ async def send_progress_update(task_id: str, update_data: Dict):
     success = await send_progress_update_to_task(task_id, update_data)
     
     if not success:
-        print(f"⚠️ 通过WebSocket服务发送失败，任务 {task_id}，尝试使用全局管理器")
+        logger.warning(f"通过WebSocket服务发送失败，任务 {task_id}，尝试使用全局管理器")
         # 如果特定连接失败，尝试使用全局管理器
         try:
             from app.main import manager
             await manager.broadcast(json.dumps(update_data, ensure_ascii=False))
-            print(f"✅ 已通过全局管理器发送消息到任务 {task_id}")
+            logger.info(f"已通过全局管理器发送消息到任务 {task_id}")
         except Exception as e:
-            print(f"❌ 全局管理器发送也失败: {e}")
+            logger.error(f"全局管理器发送也失败: {e}")
             # 如果全局连接也不行，仅记录日志
-            print(f"📝 本地记录进度更新: {update_data}")
+            logger.info(f"本地记录进度更新: {update_data}")
 
 
 def save_analysis_result(result: SimulationResult):
@@ -589,7 +565,7 @@ def save_analysis_result(result: SimulationResult):
     with open(filepath, 'w', encoding='utf-8') as f:
         json.dump(result.dict(), f, ensure_ascii=False, indent=2)
     
-    print(f"分析结果已保存到: {filepath}")
+    logger.info(f"分析结果已保存到: {filepath}")
 
 
 @router.get("/analysis/{task_id}")
@@ -621,6 +597,6 @@ async def get_analysis_results():
                 result_data = json.load(f)
                 results.append(result_data)
         except Exception as e:
-            print(f"加载结果文件失败 {file_path}: {e}")
+            logger.error(f"加载结果文件失败 {file_path}: {e}")
     
     return {"results": results}

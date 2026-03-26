@@ -48,9 +48,18 @@ app.include_router(analysis_router, prefix="/api/v1", tags=["analysis"])
 # 挂载静态文件目录
 app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
 
-# 添加根路径访问 index.html
+# 添加根路径访问新的 React 前端
 @app.get("/", response_class=HTMLResponse)
 async def read_index():
+    index_path = os.path.join(os.path.dirname(__file__), "static", "frontend", "index.html")
+    if os.path.exists(index_path):
+        with open(index_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            # 修复路径，将 ./ 替换为 /static/frontend/
+            content = content.replace('href="./', 'href="/static/frontend/')
+            content = content.replace('src="./', 'src="/static/frontend/')
+            return content
+    # 如果 React 构建文件不存在，回退到旧版
     index_path = os.path.join(os.path.dirname(__file__), "index.html")
     with open(index_path, "r", encoding="utf-8") as f:
         return f.read()
@@ -60,6 +69,13 @@ async def read_index():
 async def read_timeline():
     timeline_path = os.path.join(os.path.dirname(__file__), "timeline.html")
     with open(timeline_path, "r", encoding="utf-8") as f:
+        return f.read()
+
+# 添加旧版 index.html 访问路径
+@app.get("/legacy", response_class=HTMLResponse)
+async def read_legacy_index():
+    index_path = os.path.join(os.path.dirname(__file__), "index.html")
+    with open(index_path, "r", encoding="utf-8") as f:
         return f.read()
 
 # Websocket 连接管理器
@@ -73,8 +89,11 @@ class ConnectionManager:
         logger.info(f"WebSocket 连接建立，当前连接数: {len(self.active_connections)}")
     
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-        logger.info(f"WebSocket 连接断开，当前连接数: {len(self.active_connections)}")
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+            logger.info(f"WebSocket 连接断开，当前连接数: {len(self.active_connections)}")
+        else:
+            logger.warning(f"尝试断开不存在的WebSocket连接")
     
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
@@ -147,16 +166,9 @@ async def shutdown_event():
     for connection in manager.active_connections[:]:
         manager.disconnect(connection)
 
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    # 返回 index.html 的内容
-    html_path = os.path.join(os.path.dirname(__file__), "index.html")
-    with open(html_path, "r", encoding="utf-8") as f:
-        return f.read()
-
 @app.get("/index.html", response_class=HTMLResponse)
 async def get_index():
-    # 返回 index.html 的内容
+    """返回 index.html 的内容"""
     html_path = os.path.join(os.path.dirname(__file__), "index.html")
     with open(html_path, "r", encoding="utf-8") as f:
         return f.read()

@@ -8,10 +8,41 @@ from config.settings import settings
 import json
 import asyncio
 import logging
+import time
 from dataclasses import dataclass
+from functools import wraps
 
 
 logger = logging.getLogger(__name__)
+
+
+# 简单的请求限流装饰器
+def rate_limit(max_calls: int, period: float):
+    """限流装饰器 - 限制单位时间内的调用次数"""
+    def decorator(func):
+        calls = []
+        lock = asyncio.Lock()
+        
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            async with lock:
+                now = time.time()
+                # 清理过期的调用记录
+                calls[:] = [c for c in calls if now - c < period]
+                
+                if len(calls) >= max_calls:
+                    # 需要等待
+                    sleep_time = period - (now - calls[0])
+                    if sleep_time > 0:
+                        logger.warning(f"触发限流，等待 {sleep_time:.2f} 秒")
+                        await asyncio.sleep(sleep_time)
+                
+                calls.append(time.time())
+            
+            return await func(*args, **kwargs)
+        
+        return wrapper
+    return decorator
 
 
 class LLMResponse(BaseModel):
@@ -54,8 +85,9 @@ class LLMService:
             )
             self._last_api_key = self.settings.llm_api_key
     
+    @rate_limit(max_calls=10, period=1.0)  # 每秒最多10个请求
     async def completion(self, system_prompt: str, user_prompt: str, **kwargs) -> str:
-        """兼容旧的completion方法"""
+        """兼容旧的completion方法（带限流）"""
         self._ensure_client_updated()
         
         messages = [
@@ -69,7 +101,8 @@ class LLMService:
                 messages=messages,
                 temperature=kwargs.get("temperature", 0.7),
                 max_tokens=kwargs.get("max_tokens", 2000),
-                response_format=kwargs.get("response_format", {"type": "text"})
+                response_format=kwargs.get("response_format", {"type": "text"}),
+                extra_body={"enable_thinking": False}
             )
             
             content = response.choices[0].message.content
@@ -79,8 +112,9 @@ class LLMService:
             logger.error(error_msg, exc_info=True)
             raise ConnectionError(error_msg)
 
+    @rate_limit(max_calls=10, period=1.0)  # 每秒最多10个请求
     async def chat_completion(self, messages: List[Dict], **kwargs) -> LLMResponse:
-        """异步聊天完成"""
+        """异步聊天完成（带限流）"""
         self._ensure_client_updated()
         
         try:
@@ -106,13 +140,14 @@ class LLMService:
                 error=str(e)
             )
     
+    @rate_limit(max_calls=10, period=1.0)  # 每秒最多10个请求
     async def structured_completion(
         self, 
         system_prompt: str, 
         user_prompt: str,
         expected_scores: Optional[List[str]] = None
     ) -> LLMResponse:
-        """结构化输出完成 - 用于智能体评分"""
+        """结构化输出完成 - 用于智能体评分（带限流）"""
         self._ensure_client_updated()
         
         try:
@@ -131,7 +166,8 @@ class LLMService:
                 messages=messages,
                 temperature=0.3,  # 评分任务使用较低温度以获得更一致的结果
                 max_tokens=2000,
-                response_format={"type": "json_object"}  # 要求 JSON 格式输出
+                response_format={"type": "json_object"},  # 要求 JSON 格式输出
+                extra_body={"enable_thinking": False}
             )
             
             content = response.choices[0].message.content

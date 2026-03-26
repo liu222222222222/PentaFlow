@@ -166,16 +166,212 @@
         }
         
         .console {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            max-height: 400px;
+            background: #0d1117;
+            color: #e6edf3;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 500px;
             overflow-y: auto;
             white-space: pre-wrap;
-            min-height: 400px;
+            min-height: 300px;
+            border: 1px solid #30363d;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            line-height: 1.6;
+        }
+        
+        .console::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .console::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        
+        .console::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 5px;
+        }
+        
+        .console-line {
+            margin: 2px 0;
+            opacity: 0;
+            animation: fadeIn 0.1s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .console-timestamp {
+            color: #484f58;
+            font-size: 11px;
+        }
+        
+        .console-info { color: #58a6ff; }
+        .console-success { color: #3fb950; }
+        .console-warning { color: #d29922; }
+        .console-error { color: #f85149; }
+        .console-agent { color: #a371f7; }
+        .console-system { color: #39c5cf; }
+        
+        /* 实时数据流样式 */
+        .stream-container {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .stream-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .stream-title {
+            color: #e6edf3;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #3fb950;
+            font-size: 12px;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #3fb950;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        /* 智能体实时状态面板 */
+        .agent-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .agent-panel {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .agent-panel:hover {
+            border-color: #58a6ff;
+            box-shadow: 0 0 15px rgba(88, 166, 255, 0.2);
+        }
+        
+        .agent-panel.active {
+            border-color: #3fb950;
+            box-shadow: 0 0 20px rgba(63, 185, 80, 0.3);
+        }
+        
+        .agent-panel.processing {
+            border-color: #d29922;
+            animation: processingPulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes processingPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(210, 153, 34, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(210, 153, 34, 0.6); }
+        }
+        
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .agent-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: #21262d;
+        }
+        
+        .agent-info {
+            flex: 1;
+        }
+        
+        .agent-name {
+            color: #e6edf3;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .agent-role {
+            color: #8b949e;
+            font-size: 12px;
+        }
+        
+        .agent-status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-idle { background: #30363d; color: #8b949e; }
+        .status-searching { background: rgba(210, 153, 34, 0.2); color: #d29922; }
+        .status-analyzing { background: rgba(88, 166, 255, 0.2); color: #58a6ff; }
+        .status-complete { background: rgba(63, 185, 80, 0.2); color: #3fb950; }
+        
+        .agent-progress {
+            margin-top: 10px;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: #21262d;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #58a6ff, #3fb950);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .agent-output {
+            margin-top: 10px;
+            padding: 10px;
+            background: #0d1117;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #8b949e;
+            max-height: 100px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
         }
         
         .metrics-grid {
@@ -717,7 +913,12 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:8000/api/v1';
+        // 动态获取 API 基础地址
+        const API_BASE = (() => {
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            return `${protocol}//${host}/api/v1`;
+        })();
         let currentTaskId = null;
         let roundNumber = 0;
         let ws = null;
@@ -821,12 +1022,188 @@
             document.getElementById('apiKeyModal').style.display = 'flex';
         }
         
-        // 添加控制台日志
-        function log(message) {
+        // 添加控制台日志 - 极客风格带打字机效果
+        const consoleBuffer = [];
+        let consoleTyping = false;
+        
+        async function typeWriter(element, text, speed = 5) {
+            for (let i = 0; i < text.length; i++) {
+                element.textContent += text.charAt(i);
+                if (i % 3 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, speed));
+                }
+            }
+        }
+        
+        function log(message, type = 'info') {
             const consoleDiv = document.getElementById('console');
-            const timestamp = new Date().toLocaleTimeString();
-            consoleDiv.textContent += `[${timestamp}] ${message}\n`;
+            const timestamp = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+            
+            const line = document.createElement('div');
+            line.className = 'console-line';
+            
+            const typeColors = {
+                'info': 'console-info',
+                'success': 'console-success',
+                'warning': 'console-warning',
+                'error': 'console-error',
+                'agent': 'console-agent',
+                'system': 'console-system'
+            };
+            
+            const colorClass = typeColors[type] || 'console-info';
+            line.innerHTML = `<span class="console-timestamp">[${timestamp}]</span> <span class="${colorClass}">${escapeHtml(message)}</span>`;
+            
+            consoleDiv.appendChild(line);
             consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            
+            // 限制行数，保持性能
+            while (consoleDiv.children.length > 500) {
+                consoleDiv.removeChild(consoleDiv.firstChild);
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 智能体状态管理
+        const agentStates = {};
+        const agentConfig = {
+            '资本代言人': { icon: '🏦', color: '#ffd700', role: 'Capital' },
+            '技术执行者': { icon: '🔧', color: '#58a6ff', role: 'Tech' },
+            '创意指挥官': { icon: '🎨', color: '#f778ba', role: 'Creative' },
+            '社会观察员': { icon: '👁️', color: '#a371f7', role: 'Social' },
+            '政策监管者': { icon: '⚖️', color: '#39c5cf', role: 'Policy' },
+            '用户代表': { icon: '👤', color: '#7ee787', role: 'User' },
+            '旁观者': { icon: '🤔', color: '#ff7b72', role: 'Observer' }
+        };
+        
+        // 初始化智能体面板
+        function initAgentDashboard() {
+            const container = document.getElementById('roundsContainer');
+            
+            // 创建实时数据流面板
+            const streamPanel = document.createElement('div');
+            streamPanel.className = 'stream-container';
+            streamPanel.id = 'liveStreamPanel';
+            streamPanel.innerHTML = `
+                <div class="stream-header">
+                    <span class="stream-title">🚀 实时推演数据流</span>
+                    <div class="live-indicator">
+                        <span class="live-dot"></span>
+                        <span>LIVE</span>
+                    </div>
+                </div>
+                <div id="agentDashboard" class="agent-dashboard"></div>
+            `;
+            container.insertBefore(streamPanel, container.firstChild);
+            
+            // 初始化每个智能体面板
+            Object.keys(agentConfig).forEach(agentName => {
+                agentStates[agentName] = {
+                    status: 'idle',
+                    progress: 0,
+                    output: '',
+                    startTime: null
+                };
+                createAgentPanel(agentName);
+            });
+        }
+        
+        function createAgentPanel(agentName) {
+            const dashboard = document.getElementById('agentDashboard');
+            const config = agentConfig[agentName];
+            
+            const panel = document.createElement('div');
+            panel.className = 'agent-panel';
+            panel.id = `agent-panel-${agentName}`;
+            panel.innerHTML = `
+                <div class="agent-header">
+                    <div class="agent-avatar" style="border: 2px solid ${config.color}30;">${config.icon}</div>
+                    <div class="agent-info">
+                        <div class="agent-name">${agentName}</div>
+                        <div class="agent-role">${config.role}</div>
+                    </div>
+                    <span class="agent-status-badge status-idle" id="agent-status-${agentName}">IDLE</span>
+                </div>
+                <div class="agent-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="agent-progress-${agentName}" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="agent-output" id="agent-output-${agentName}">等待任务...</div>
+            `;
+            dashboard.appendChild(panel);
+        }
+        
+        // 更新智能体状态
+        function updateAgentStatus(agentName, status, progress = 0, output = '') {
+            if (!agentStates[agentName]) return;
+            
+            const state = agentStates[agentName];
+            state.status = status;
+            state.progress = progress;
+            state.output = output;
+            
+            const panel = document.getElementById(`agent-panel-${agentName}`);
+            const statusBadge = document.getElementById(`agent-status-${agentName}`);
+            const progressBar = document.getElementById(`agent-progress-${agentName}`);
+            const outputDiv = document.getElementById(`agent-output-${agentName}`);
+            
+            if (!panel || !statusBadge) return;
+            
+            // 更新面板样式
+            panel.classList.remove('active', 'processing');
+            
+            const statusMap = {
+                'idle': { class: 'status-idle', text: 'IDLE' },
+                'searching': { class: 'status-searching', text: 'SEARCHING' },
+                'analyzing': { class: 'status-analyzing', text: 'ANALYZING' },
+                'complete': { class: 'status-complete', text: 'COMPLETE' }
+            };
+            
+            const statusInfo = statusMap[status] || statusMap['idle'];
+            statusBadge.className = `agent-status-badge ${statusInfo.class}`;
+            statusBadge.textContent = statusInfo.text;
+            
+            // 更新进度条
+            if (progressBar) {
+                progressBar.style.width = `${progress}%`;
+            }
+            
+            // 更新输出内容
+            if (outputDiv && output) {
+                outputDiv.textContent = output.substring(0, 200);
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            }
+            
+            // 添加动画效果
+            if (status === 'analyzing') {
+                panel.classList.add('processing');
+            } else if (status === 'complete') {
+                panel.classList.add('active');
+            }
+            
+            // 记录日志
+            const logType = status === 'complete' ? 'success' : 
+                           status === 'analyzing' ? 'agent' : 'info';
+            log(`[${agentName}] ${status.toUpperCase()}${output ? ': ' + output.substring(0, 50) : ''}`, logType);
+        }
+        
+        // 重置所有智能体状态
+        function resetAgentDashboard() {
+            Object.keys(agentStates).forEach(agentName => {
+                agentStates[agentName] = {
+                    status: 'idle',
+                    progress: 0,
+                    output: '',
+                    startTime: null
+                };
+                updateAgentStatus(agentName, 'idle', 0, '等待任务...');
+            });
         }
         
         // 加载测试数据
@@ -1608,8 +1985,10 @@
                 ws.close();
             }
             
-            // 构建WebSocket URL
-            const wsUrl = `ws://localhost:8000/ws/progress`;
+            // 构建WebSocket URL - 动态获取
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsHost = window.location.host;
+            const wsUrl = `${wsProtocol}//${wsHost}/ws/progress`;
             
             try {
                 ws = new WebSocket(wsUrl);
@@ -1656,7 +2035,7 @@
             }
         }
         
-        // WebSocket消息处理
+        // WebSocket消息处理 - 优化实时展示
         function handleProgressUpdate(data) {
             if (data.task_id !== currentTaskId) {
                 return;
@@ -1666,23 +2045,27 @@
             
             switch (progressData.status) {
                 case 'started':
-                    log(`推演开始: ${progressData.event_name}`);
-                    createRoundDisplay(1); // 创建第一轮显示
+                    log(`🚀 推演开始: ${progressData.event_name}`, 'system');
+                    // 初始化实时面板
+                    initAgentDashboard();
+                    createRoundDisplay(1);
                     roundNumber = 1;
                     break;
                     
                 case 'round_started':
                     const newRoundNum = progressData.current_round;
-                    log(`第 ${newRoundNum} 轮推演开始...`);
+                    log(`🔄 第 ${newRoundNum} 轮推演开始...`, 'system');
                     if (!document.getElementById(`round_${newRoundNum}_container`)) {
                         createRoundDisplay(newRoundNum);
                     }
                     roundNumber = newRoundNum;
+                    // 重置智能体状态
+                    resetAgentDashboard();
                     break;
                     
                 case 'round_completed':
                     const score = progressData.composite_score !== undefined ? progressData.composite_score.toFixed(3) : '计算中';
-                    log(`第 ${roundNumber} 轮完成，综合得分: ${score}`);
+                    log(`✅ 第 ${roundNumber} 轮完成，综合得分: ${score}`, 'success');
                     updateMetricsDisplay(roundNumber, progressData.metrics || {});
                     
                     // 保存轮次数据
@@ -1704,16 +2087,16 @@
                 case 'converged':
                 case 'completed':
                     const finalScore = progressData.composite_score !== undefined ? progressData.composite_score.toFixed(3) : '计算中';
-                    log(`推演完成，最终得分: ${finalScore}`);
+                    log(`🎉 推演完成，最终得分: ${finalScore}`, 'success');
                     break;
                     
                 case 'error':
-                    log(`推演出错: ${progressData.message}`);
+                    log(`❌ 推演出错: ${progressData.message}`, 'error');
                     break;
                     
-                // 智能体活动 - 确保轮次显示已创建
+                // 智能体活动 - 实时更新面板
                 case 'agent_searching':
-                    log(`🔍 ${progressData.agent_name} 正在搜索: ${progressData.query}`);
+                    updateAgentStatus(progressData.agent_name, 'searching', 20, `搜索: ${progressData.query}`);
                     if (roundNumber === 0) roundNumber = 1;
                     if (!document.getElementById(`round_${roundNumber}_container`)) {
                         createRoundDisplay(roundNumber);
@@ -1722,7 +2105,7 @@
                     break;
                     
                 case 'agent_analyzing':
-                    log(`🧠 ${progressData.agent_name} 正在分析中...`);
+                    updateAgentStatus(progressData.agent_name, 'analyzing', 60, 'LLM分析中...');
                     if (roundNumber === 0) roundNumber = 1;
                     if (!document.getElementById(`round_${roundNumber}_container`)) {
                         createRoundDisplay(roundNumber);
@@ -1731,7 +2114,7 @@
                     break;
                     
                 case 'agent_completed':
-                    log(`✅ ${progressData.agent_name} 分析完成`);
+                    updateAgentStatus(progressData.agent_name, 'complete', 100, '分析完成');
                     if (roundNumber === 0) roundNumber = 1;
                     if (!document.getElementById(`round_${roundNumber}_container`)) {
                         createRoundDisplay(roundNumber);
@@ -1740,7 +2123,7 @@
                     break;
                     
                 case 'agent_search_completed':
-                    log(`🔍 ${progressData.agent_name} 搜索完成 (${progressData.results_count}个结果)`);
+                    updateAgentStatus(progressData.agent_name, 'analyzing', 40, `找到 ${progressData.results_count} 个结果，准备分析...`);
                     if (roundNumber === 0) roundNumber = 1;
                     if (!document.getElementById(`round_${roundNumber}_container`)) {
                         createRoundDisplay(roundNumber);
@@ -1749,7 +2132,7 @@
                     break;
                     
                 case 'bystander_summary':
-                    log(`🤔 旁观者总结: ${progressData.summary}`);
+                    log(`🤔 旁观者总结已生成`, 'agent');
                     if (roundNumber === 0) roundNumber = 1;
                     if (!document.getElementById(`round_${roundNumber}_container`)) {
                         createRoundDisplay(roundNumber);

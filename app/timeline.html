@@ -350,7 +350,12 @@
     </div>
     
     <script>
-        const API_BASE = 'http://localhost:8000/api/v1';
+        // 动态获取 API 基础地址
+        const API_BASE = (() => {
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            return `${protocol}//${host}/api/v1`;
+        })();
         let llmApiKey = '';
         
         // 页面加载时初始化

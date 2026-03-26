@@ -2,9 +2,11 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import Dict
 import json
 from datetime import datetime
+import logging
 
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # WebSocket 连接管理
 active_connections: Dict[str, WebSocket] = {}
@@ -36,7 +38,7 @@ async def websocket_analysis_endpoint(websocket: WebSocket, task_id: str):
         if task_id in active_connections:
             del active_connections[task_id]
     except Exception as e:
-        print(f"WebSocket error for task {task_id}: {e}")
+        logger.error(f"WebSocket error for task {task_id}: {e}")
         if task_id in active_connections:
             del active_connections[task_id]
 
@@ -48,7 +50,7 @@ async def broadcast_to_task(task_id: str, message: Dict):
             await active_connections[task_id].send_text(json.dumps(message))
             return True
         except Exception as e:
-            print(f"Broadcast error for task {task_id}: {e}")
+            logger.error(f"Broadcast error for task {task_id}: {e}")
             # 移除失效连接
             del active_connections[task_id]
             return False
